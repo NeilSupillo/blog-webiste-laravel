@@ -12,14 +12,9 @@ class PostController extends Controller
      */
     public function index()
     {
-        $name = "neil";
-        $age = 22;
-        $post = [
-            'posts 1',
-            'posts 2',
-            'posts 3'
-        ];
-        return view('posts.index', ['username' => $name, 'age' => $age]);
+        $posts = Post::all();
+
+        return view('posts.index', ['posts' => $posts]);
     }
 
     /**
@@ -35,27 +30,30 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        Post::create([
-            'title' => $request->title,
-            'content' => $request->content,
+        $validated = $request->validate([
+            'title' => ['required'],
+            'content' => ['required'],
         ]);
+        Post::create($validated);
         return redirect()->route('posts.index');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show()
+    public function show(Post $post)
     {
-        return view('posts.show');
+        //$post = Post::findOrFail($id);
+        return view('posts.show', ['post' => $post]);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit()
+    public function edit(Post $post)
     {
-        return view('posts.edit');
+
+        return view('posts.edit', ['post' => $post]);
     }
 
     /**
@@ -63,7 +61,12 @@ class PostController extends Controller
      */
     public function update(Request $request, Post $post)
     {
-        //
+        $validated = $request->validate([
+            'title' => ['required'],
+            'content' => ['required'],
+        ]);
+        $post->update($validated);
+        return to_route('posts.index');
     }
 
     /**
@@ -71,6 +74,7 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
-        //
+        $post->delete();
+        return to_route('posts.index');
     }
 }
